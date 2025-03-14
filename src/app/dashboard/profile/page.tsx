@@ -3,22 +3,23 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { getUserInfo } from "@/app/services/api";
 
-export default function EditOnceForm() {
+export default function ProfilePage() {
     const [username, setUsername] = useState("");
     const [bias, setBias] = useState("");
     const [bio, setBio] = useState("");
     const [image, setImage] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+    const [posts, setPosts] = useState<string[]>(["Loving TWICE!", "Bias change? 🤔", "Concert tickets secured! 🎶"]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+    const [isOpen, setIsOpen] = useState(false);
 
     // 🛠 User-Daten laden
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
                 const data = await getUserInfo();
-                console.log(data);
                 setBias(data.bias);
                 setBio(data.bio);
                 setUsername(data.username);
@@ -52,12 +53,12 @@ export default function EditOnceForm() {
         if (image) formData.append("file", image);
 
         try {
-            const response = await axios.put("http://localhost:8080/api/v1/twice/editOnce", formData, {
-                withCredentials: true, // Session-Cookie senden
+            await axios.put("http://localhost:8080/api/v1/twice/editOnce", formData, {
+                withCredentials: true,
             });
 
-            console.log("Update erfolgreich:", response.data);
             setSuccess(true);
+            setIsOpen(false); // Modal schließen nach erfolgreicher Speicherung
         } catch (err) {
             console.error("Fehler:", err);
             setError("Fehler beim Speichern.");
@@ -67,53 +68,79 @@ export default function EditOnceForm() {
     };
 
     return (
-        <div className="max-w-lg mx-auto bg-green-400 p-6 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-4">Profil bearbeiten</h2>
-            {username}
+        <div className="max-w-2xl mx-auto bg-gray-700 p-6 rounded-lg shadow-md">
+            {/* 🎭 Profil */}
+            <div className="flex flex-col items-center">
+                <img src={preview || "/images/twice-default.jpg"} alt="Profilbild" className="w-32 h-32 rounded-full border-4 border-gray-300" />
+                <h2 className="text-xl font-bold mt-2 text-white">{username || "Once Fan"}</h2>
+                <p className="text-gray-300">{bias ? `Bias: ${bias}` : "Bias not set"}</p>
+                <p className="text-gray-400 italic">{bio || "No Bio avaiable."}</p>
+                <button onClick={() => setIsOpen(true)} className="btn btn-primary mt-3">Profil bearbeiten</button>
+            </div>
 
-            {error && <p className="text-red-500">{error}</p>}
-            {success && <p className="text-green-500">Erfolgreich gespeichert!</p>}
+            {/* 📝 Posts, wenn verfügbar */}
+            <div className="mt-6">
+                <h3 className="text-lg font-semibold">Your posts</h3>
+                <ul className="mt-2 space-y-2">
+                    {posts.map((post, index) => (
+                        <li key={index} className="p-3 bg-gray-100 rounded-md shadow-sm">
+                            {post}
+                        </li>
+                    ))}
+                </ul>
+            </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <label className="block">
-                    <span className="text-gray-700">Bias</span>
-                    <input
-                        type="text"
-                        className="mt-1 block w-full border p-2 rounded"
-                        value={bias}
-                        onChange={(e) => setBias(e.target.value)}
-                    />
-                </label>
+            {/* 🎭 Profil bearbeiten Modal */}
+            {isOpen && (
+                <dialog open className="modal modal-open">
+                    <div className="modal-box">
+                        <h2 className="font-bold text-lg">Profil bearbeiten</h2>
 
-                <label className="block">
-                    <span className="text-gray-700">Bio</span>
-                    <textarea
-                        className="mt-1 block w-full border p-2 rounded"
-                        value={bio}
-                        onChange={(e) => setBio(e.target.value)}
-                    />
-                </label>
+                        {error && <p className="text-red-500">{error}</p>}
+                        {success && <p className="text-green-500">Saved!</p>}
 
-                <label className="block">
-                    <span className="text-gray-700">Profilbild</span>
-                    <input
-                        type="file"
-                        className="mt-1 block w-full"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                    />
-                </label>
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
+                            <label className="block">
+                                <span className="text-gray-700">Bias</span>
+                                <input
+                                    type="text"
+                                    className="input input-bordered w-full"
+                                    value={bias}
+                                    onChange={(e) => setBias(e.target.value)}
+                                />
+                            </label>
 
-                {preview && <img src={preview} alt="Preview" className="w-32 h-32 rounded-full mt-2" />}
+                            <label className="block">
+                                <span className="text-gray-700">Bio</span>
+                                <textarea
+                                    className="textarea textarea-bordered w-full"
+                                    value={bio}
+                                    onChange={(e) => setBio(e.target.value)}
+                                />
+                            </label>
 
-                <button
-                    type="submit"
-                    className="bg-blue-500 text-white p-2 rounded"
-                    disabled={loading}
-                >
-                    {loading ? "Speichern..." : "Speichern"}
-                </button>
-            </form>
+                            <label className="block">
+                                <span className="text-gray-700">Profilbild</span>
+                                <input
+                                    type="file"
+                                    className="file-input w-full"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                />
+                            </label>
+
+                            {preview && <img src={preview} alt="Preview" className="w-24 h-24 rounded-full mt-2 mx-auto" />}
+
+                            <div className="modal-action">
+                                <button type="button" onClick={() => setIsOpen(false)} className="btn">Abbrechen</button>
+                                <button type="submit" className="btn btn-success" disabled={loading}>
+                                    {loading ? "Speichern..." : "Speichern"}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </dialog>
+            )}
         </div>
     );
 }
