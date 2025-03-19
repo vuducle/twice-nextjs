@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { getUserInfo } from "@/app/services/api";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function ProfilePage() {
     const [username, setUsername] = useState("");
@@ -15,14 +17,27 @@ export default function ProfilePage() {
     const [success, setSuccess] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
+    interface TwicePost {
+        id: string;
+        title: string;
+        content: string;
+        memberName: string;
+        imageUrl: string[];
+        onceUsername: string;
+        onceId: string;
+    }
+
     // 🛠 User-Daten laden
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
                 const data = await getUserInfo();
+                console.log(data.twicePosts);
+
                 setBias(data.bias);
                 setBio(data.bio);
                 setUsername(data.username);
+                setPosts(data.twicePosts);
                 setPreview("http://localhost:8080" + data.imageUrl || "/images/twice-default.jpg");
             } catch (err) {
                 console.error("Fehler beim Laden der User-Daten:", err);
@@ -67,6 +82,72 @@ export default function ProfilePage() {
         }
     };
 
+    const handleDeletePost = async (postId: string) => {
+        const confirmDelete = window.confirm("Möchtest du diesen Post wirklich löschen?");
+        if (!confirmDelete) return;
+        try {
+            await axios.delete(`http://localhost:8080/api/v1/twice-post/post/${postId}`, {
+                withCredentials: true,
+            });
+
+            setPosts(posts.filter((post) => post.id !== postId));
+        } catch (err) {
+            console.error("Fehler beim Löschen des Posts:", err);
+            alert("Fehler beim Löschen des Posts!");
+        }
+    };
+
+    function TwiceRedVelvetBlackPink({ posts }: { posts: TwicePost[] }) {
+        return (
+            <>
+                {posts.length > 0 ? (
+                    posts.map((post) => (
+                        <div key={post.id} className="card bg-base-100 w-full md:w-1/2 shadow-sm">
+                            <figure>
+                                {post.imageUrl && post.imageUrl.length > 0 ? (
+                                    <Image
+                                        src={"http://localhost:8080" + post.imageUrl[0]}
+                                        alt={post.content}
+                                        width={320}
+                                        height={320}
+                                        priority={true}
+                                    />
+                                ) : (
+                                    <Image
+                                        src={"/images/twice-default.jpg"}
+                                        alt={"Platzhalter"}
+                                        width={320}
+                                        height={320}
+                                        priority={true}
+                                    />
+                                )}
+                            </figure>
+                            <div className="card-body">
+                                <h2 className="card-title">{post.title}</h2>
+                                <small>{post.onceUsername} - {post.memberName}</small>
+                                <p>{post.content}</p>
+
+                                <div className="card-actions flex justify-between">
+                                    <Link href={`/dashboard/post/${post.id}`} className="btn btn-primary">
+                                        To post
+                                    </Link>
+                                    <button
+                                        onClick={() => handleDeletePost(post.id)}
+                                        className="btn btn-error"
+                                    >
+                                        🗑 Löschen
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <p>No posts available</p>
+                )}
+            </>
+        );
+    }
+
     return (
         <div className="max-w-2xl mx-auto bg-gray-700 p-6 rounded-lg shadow-md">
             {/* 🎭 Profil */}
@@ -81,13 +162,9 @@ export default function ProfilePage() {
             {/* 📝 Posts, wenn verfügbar */}
             <div className="mt-6">
                 <h3 className="text-lg font-semibold">Your posts</h3>
-                <ul className="mt-2 space-y-2">
-                    {posts.map((post, index) => (
-                        <li key={index} className="p-3 bg-gray-100 rounded-md shadow-sm">
-                            {post}
-                        </li>
-                    ))}
-                </ul>
+                <div className="flex flex-wrap">
+                    <TwiceRedVelvetBlackPink posts={posts} />
+                </div>
             </div>
 
             {/* 🎭 Profil bearbeiten Modal */}
@@ -120,7 +197,7 @@ export default function ProfilePage() {
                             </label>
 
                             <label className="block">
-                                <span className="text-gray-700">Profilbild</span>
+                                <span className="text-gray-700">Profil image</span>
                                 <input
                                     type="file"
                                     className="file-input w-full"
@@ -132,9 +209,9 @@ export default function ProfilePage() {
                             {preview && <img src={preview} alt="Preview" className="w-24 h-24 rounded-full mt-2 mx-auto" />}
 
                             <div className="modal-action">
-                                <button type="button" onClick={() => setIsOpen(false)} className="btn">Abbrechen</button>
+                                <button type="button" onClick={() => setIsOpen(false)} className="btn btn-error">Cancel</button>
                                 <button type="submit" className="btn btn-success" disabled={loading}>
-                                    {loading ? "Speichern..." : "Speichern"}
+                                    {loading ? "Save..." : "Saved"}
                                 </button>
                             </div>
                         </form>
