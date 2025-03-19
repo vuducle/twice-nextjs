@@ -98,56 +98,63 @@ export default function ProfilePage() {
     };
 
     function TwiceRedVelvetBlackPink({ posts }: { posts: TwicePost[] }) {
+
         return (
-            <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
                 {posts.length > 0 ? (
                     posts.map((post) => (
-                        <div key={post.id} className="card bg-base-100 w-full md:w-1/2 shadow-sm">
-                            <figure>
+                        <div key={post.id} className="card bg-base-100 shadow-lg hover:shadow-xl transition-shadow duration-300">
+                            <figure className="relative aspect-square overflow-hidden">
                                 {post.imageUrl && post.imageUrl.length > 0 ? (
                                     <Image
                                         src={"http://localhost:8080" + post.imageUrl[0]}
                                         alt={post.content}
-                                        width={320}
-                                        height={320}
+                                        fill // Use `fill` to make the image responsive
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         priority={true}
                                     />
                                 ) : (
                                     <Image
                                         src={"/images/twice-default.jpg"}
                                         alt={"Platzhalter"}
-                                        width={320}
-                                        height={320}
+                                        fill // Use `fill` to make the image responsive
+                                        className="object-cover"
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                         priority={true}
                                     />
                                 )}
                             </figure>
-                            <div className="card-body">
-                                <h2 className="card-title">{post.title}</h2>
-                                <small>{post.onceUsername} - {post.memberName}</small>
-                                <p>{post.content}</p>
+                            <div className="card-body p-4">
+                                <h2 className="card-title text-lg font-bold">{post.title}</h2>
+                                <small className="text-sm text-gray-500">
+                                    {post.onceUsername} - {post.memberName}
+                                </small>
+                                <p className="mt-2 text-gray-700">{post.content}</p>
 
-                                <div className="card-actions flex justify-between">
-                                    <Link href={`/dashboard/post/${post.id}`} className="btn btn-primary">
+                                <div className="card-actions flex justify-between mt-4">
+                                    <Link
+                                        href={`/dashboard/post/${post.id}`}
+                                        className="btn btn-primary btn-sm"
+                                    >
                                         To post
                                     </Link>
                                     <button
                                         onClick={() => handleDeletePost(post.id)}
-                                        className="btn btn-error"
+                                        className="btn btn-error btn-sm"
                                     >
-                                        🗑 Löschen
+                                        🗑 Delete
                                     </button>
                                 </div>
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p>No posts available</p>
+                    <p className="text-center text-gray-500">No posts available</p>
                 )}
-            </>
+            </div>
         );
     }
-
     return (
         <div className="max-w-2xl mx-auto bg-gray-700 p-6 rounded-lg shadow-md">
             {/* 🎭 Profil */}
