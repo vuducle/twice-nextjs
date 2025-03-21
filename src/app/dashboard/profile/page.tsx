@@ -98,7 +98,6 @@ export default function ProfilePage() {
     };
 
     function TwiceRedVelvetBlackPink({ posts }: { posts: TwicePost[] }) {
-
         return (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
                 {posts.length > 0 ? (
@@ -155,30 +154,38 @@ export default function ProfilePage() {
             </div>
         );
     }
+
     return (
-        <div className="max-w-2xl mx-auto bg-gray-700 p-6 rounded-lg shadow-md">
+        <div className="max-w-4xl mx-auto bg-gradient-to-r from-pink-50 to-purple-50 p-6 rounded-lg shadow-md">
             {/* 🎭 Profil */}
             <div className="flex flex-col items-center">
-                <img src={preview || "/images/twice-default.jpg"} alt="Profilbild" className="w-32 h-32 rounded-full border-4 border-gray-300" />
-                <h2 className="text-xl font-bold mt-2 text-white">{username || "Once Fan"}</h2>
-                <p className="text-gray-300">{bias ? `Bias: ${bias}` : "Bias not set"}</p>
-                <p className="text-gray-400 italic">{bio || "No Bio avaiable."}</p>
-                <button onClick={() => setIsOpen(true)} className="btn btn-primary mt-3">Profil bearbeiten</button>
+                <img
+                    src={preview || "/images/twice-default.jpg"}
+                    alt="Profilbild"
+                    className="w-32 h-32 rounded-full border-4 border-pink-500 shadow-lg"
+                />
+                <h2 className="text-2xl font-bold mt-4 text-pink-700">{username || "Once Fan"}</h2>
+                <p className="text-lg text-purple-600">{bias ? `Bias: ${bias}` : "Bias not set"}</p>
+                <p className="text-gray-600 italic">{bio || "No Bio available."}</p>
+                <button
+                    onClick={() => setIsOpen(true)}
+                    className="btn btn-primary mt-4 bg-pink-500 hover:bg-pink-600 border-none"
+                >
+                    Edit Profile
+                </button>
             </div>
 
             {/* 📝 Posts, wenn verfügbar */}
-            <div className="mt-6">
-                <h3 className="text-lg font-semibold">Your posts</h3>
-                <div className="flex flex-wrap">
-                    <TwiceRedVelvetBlackPink posts={posts} />
-                </div>
+            <div className="mt-8">
+                <h3 className="text-2xl font-bold text-pink-700 mb-4">Your Posts</h3>
+                <TwiceRedVelvetBlackPink posts={posts} />
             </div>
 
             {/* 🎭 Profil bearbeiten Modal */}
             {isOpen && (
                 <dialog open className="modal modal-open">
-                    <div className="modal-box">
-                        <h2 className="font-bold text-lg">Profil bearbeiten</h2>
+                    <div className="modal-box bg-gradient-to-r from-pink-50 to-purple-50">
+                        <h2 className="font-bold text-2xl text-pink-700">Edit Profile</h2>
 
                         {error && <p className="text-red-500">{error}</p>}
                         {success && <p className="text-green-500">Saved!</p>}
@@ -204,21 +211,37 @@ export default function ProfilePage() {
                             </label>
 
                             <label className="block">
-                                <span className="text-gray-700">Profil image</span>
+                                <span className="text-gray-700">Profile Image</span>
                                 <input
                                     type="file"
-                                    className="file-input w-full"
+                                    className="file-input file-input-bordered w-full"
                                     accept="image/*"
                                     onChange={handleImageChange}
                                 />
                             </label>
 
-                            {preview && <img src={preview} alt="Preview" className="w-24 h-24 rounded-full mt-2 mx-auto" />}
+                            {preview && (
+                                <img
+                                    src={preview}
+                                    alt="Preview"
+                                    className="w-24 h-24 rounded-full mt-2 mx-auto border-2 border-pink-500"
+                                />
+                            )}
 
                             <div className="modal-action">
-                                <button type="button" onClick={() => setIsOpen(false)} className="btn btn-error">Cancel</button>
-                                <button type="submit" className="btn btn-success" disabled={loading}>
-                                    {loading ? "Save..." : "Saved"}
+                                <button
+                                    type="button"
+                                    onClick={() => setIsOpen(false)}
+                                    className="btn btn-error bg-red-500 hover:bg-red-600 border-none"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    className="btn btn-success bg-green-500 hover:bg-green-600 border-none"
+                                    disabled={loading}
+                                >
+                                    {loading ? "Saving..." : "Save"}
                                 </button>
                             </div>
                         </form>

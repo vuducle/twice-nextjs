@@ -34,6 +34,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </li>
                     <li>
                         <a
+                            href="/dashboard/search"
+                            className="block p-3 hover:bg-pink-600 rounded-lg transition-colors duration-200 flex items-center"
+                        >
+                            ✨ Search
+                        </a>
+                    </li>
+                    <li>
+                        <a
                             href="/dashboard/profile"
                             className="block p-3 hover:bg-pink-600 rounded-lg transition-colors duration-200 flex items-center"
                         >
